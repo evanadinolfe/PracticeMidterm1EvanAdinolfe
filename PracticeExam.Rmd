@@ -1,0 +1,53 @@
+---
+title: "PracticeExam"
+output: html_document
+date: "2025-03-03"
+---
+
+```{r}
+library(fpp2)
+
+arrivals_ts <- ts(arrivals[,4], start = c(1981,1), frequency = 4)
+
+plot(arrivals_ts)
+#The United States' arrivals to Australia gradually increase over time, but it varies depending on the quarter.
+
+summary(arrivals_ts)
+boxplot(arrivals_ts)
+#The average amount of arrivals for the US is 84.85. The maximum amount of arrivals is 136.09.
+
+ets_arrivals <- ets(arrivals_ts)
+plot(ets_arrivals)
+decompose <- decompose(arrivals_ts)
+stl_decomp <- stl(arrivals_ts,s.window = "periodic")
+#The time series is seasonal and additive. The values of the seasonal indices are 6.78 in Q1, -7.97 in Q2, -4.72 in Q3, and 5.90 Q4. The time series value is highest in Q1 and lowest in Q2. In Australia, their summers are in Q1, so people are traveling there a lot more. It begins to get cold again in Q2, so less people travel there.
+
+plot(arrivals_ts)
+seasonadj_arrivals <- seasadj(stl_decomp)
+lines(seasonadj_arrivals, col = "blue")
+#There are big fluctuations between the time series plot and the plot that is adjusted to seasonality. When you remove seasonality, Q1 decreases by around 7 values.
+
+naive_forecast <- naive(arrivals_ts, 4)
+plot(naive_forecast)
+res_arrivals <- naive_forecast$residuals
+plot(res_arrivals)
+#The naive forecast is very inaccurate in some parts of the model. The error is about 37,000 people in 1986. The error is around 25,000 people in other areas as well.
+hist(res_arrivals)
+#The naive forecast has an error between 0 and 10,000 people over 40 times, which is the most frequent error. The histogram is skewed left, so the model is more likely to under forecast.
+plot(naive_forecast$fitted, res_arrivals)
+plot(naive_forecast$x, res_arrivals)
+Acf(res_arrivals)
+#The Acf indicates that there is no trend in the residuals. It is seasonal, as the Acf spikes every 2 quarters.
+
+accuracy(naive_forecast)
+
+naive_forecast
+plot(naive_forecast)
+accuracy(naive_forecast)
+#The naive forecast isn't the most accurate. The MAPE is 11.83%, meaning the forecast is off by 11.83% of the actual numbers. A 12.51 RMSE means there are some rather large errors in this model, so this model isn't quite accurate compared to other forecasting techniques.
+#The naive forecast predicts the arrivals value to be 106.54 a year from now.
+
+
+
+```
+
